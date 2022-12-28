@@ -8,6 +8,7 @@ public class MyEladminBackend1Application {
 
     public static void main(String[] args) {
         SpringApplication.run(MyEladminBackend1Application.class, args);
+        System.out.println("http://localhost:8080");
     }
 
 }
