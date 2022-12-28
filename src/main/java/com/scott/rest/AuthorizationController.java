@@ -1,14 +1,19 @@
 package com.scott.rest;
 
 import cn.hutool.core.util.IdUtil;
+import com.scott.service.dto.AuthUserDto;
 import com.scott.utils.RedisUtils;
 import com.wf.captcha.ArithmeticCaptcha;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang3.StringUtils;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +33,22 @@ public class AuthorizationController {
      * lombok 使用 @RequiredArgsConstructor 替代 @Autowired
      */
     private final RedisUtils redisUtils;
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@Validated @RequestBody AuthUserDto authUserDto, HttpServletRequest request) throws Exception {
+        // 查询 Redis 中的 验证码
+        String code = (String) redisUtils.get(authUserDto.getUuid());
+        // 清除redis 中的 验证码
+        redisUtils.del(authUserDto.getUuid());
+        if(StringUtils.isBlank(code)){
+            throw new Exception("验证码为空或已过期");
+        }
+        if(StringUtils.isBlank(authUserDto.getCode()) || !authUserDto.getCode().equalsIgnoreCase(code)){
+            throw new Exception("验证码错误");
+        }
+        // 已通过 验证码 验证
+        return ResponseEntity.ok("验证码校验通过，但是还没有进行认证和授权");
+    }
 
     @GetMapping(value = "/code")
     public ResponseEntity<Object> getCode() {
