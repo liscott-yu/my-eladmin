@@ -19,7 +19,7 @@ import java.util.Arrays;
  *
  * @author liscott
  * @date 2022/12/28 17:57
- * description  TODO
+ * description
  */
 @Configuration
 @EnableWebSecurity
