@@ -1,6 +1,7 @@
 package com.scott.service;
 
 import com.scott.service.dto.UserDto;
+import org.springframework.data.domain.Pageable;
 
 /**
  * project name  my-eladmin-backend1
@@ -15,4 +16,11 @@ public interface UserService {
      * @return UserDto
      */
     UserDto findByName(String username);
+
+    /**
+     * queryAll
+     * @param pageable /
+     * @return /
+     */
+    Object queryAll(Pageable pageable);
 }

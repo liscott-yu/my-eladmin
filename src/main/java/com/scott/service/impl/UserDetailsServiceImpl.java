@@ -1,5 +1,6 @@
 package com.scott.service.impl;
 
+import com.scott.service.RoleService;
 import com.scott.service.UserService;
 import com.scott.service.dto.JwtUserDto;
 import com.scott.service.dto.UserDto;
@@ -19,10 +20,13 @@ import java.util.List;
  * @author liscott
  * @date 2022/12/28 18:25
  */
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     UserService userService;
+    @Autowired
+    RoleService roleService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -31,7 +35,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         JwtUserDto jwtUserDto = new JwtUserDto(
                 userDto,
                 null,
-                authorities
+                // 获取当前用户的权限，并进行授权
+                roleService.mapToGrantedAuthorities(userDto)
         );
         return jwtUserDto;
     }

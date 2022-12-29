@@ -1,6 +1,9 @@
 package com.scott.service;
 
+import com.scott.service.dto.UserDto;
 import com.scott.service.dto.small.RoleSmallDto;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.List;
 
 /**
@@ -16,4 +19,12 @@ public interface RoleService {
      * @return /
      */
     List<RoleSmallDto> findByUsersId(Long id);
+
+    /**
+     * 获取 用户权限信息列表
+     * @param user 用户信息
+     * @return 权限信息
+     */
+    List<GrantedAuthority> mapToGrantedAuthorities(UserDto user);
+
 }
