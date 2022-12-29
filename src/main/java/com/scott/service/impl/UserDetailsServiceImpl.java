@@ -1,5 +1,6 @@
 package com.scott.service.impl;
 
+import com.scott.service.DataService;
 import com.scott.service.RoleService;
 import com.scott.service.UserService;
 import com.scott.service.dto.JwtUserDto;
@@ -27,6 +28,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     UserService userService;
     @Autowired
     RoleService roleService;
+    @Autowired
+    DataService dataService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -34,7 +37,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList("Admin");
         JwtUserDto jwtUserDto = new JwtUserDto(
                 userDto,
-                null,
+                // 获取当前用户的数据权限，并进行授权
+                dataService.getDeptIds(userDto),
                 // 获取当前用户的权限，并进行授权
                 roleService.mapToGrantedAuthorities(userDto)
         );

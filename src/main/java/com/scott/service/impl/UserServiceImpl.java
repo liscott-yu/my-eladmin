@@ -6,6 +6,7 @@ import com.scott.service.UserService;
 import com.scott.service.dto.UserDto;
 import com.scott.service.mapstruct.UserMapper;
 import com.scott.utils.PageUtil;
+import com.scott.utils.QueryHelp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object queryAll(Pageable pageable) {
-        Page<User> pages = userRepository.findAll(pageable);
+        Page<User> pages = userRepository.findAll(QueryHelp::getPredicate, pageable);
+        // 以上代码等价于以下代码：
+//        Page<User> page = userRepository.findAll(new Specification<User>() {
+//            @Override
+//            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+//                return QueryHelp.getPredicate(root, query, criteriaBuilder);
+//            }
+//        }, pageable);
         return PageUtil.toPage(pages.map(userMapper::toDto));
     }
 }
