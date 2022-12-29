@@ -2,6 +2,7 @@ package com.scott.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -35,6 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin().and().authorizeRequests()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/code").permitAll()
+                // 放行OPTIONS请求，放行了才能把status放到data里面
+                .antMatchers(HttpMethod.OPTIONS, "/*").permitAll()
                 .anyRequest().authenticated()
                 .and().cors().configurationSource(corsConfigurationSource())
                 .and().csrf().disable();
