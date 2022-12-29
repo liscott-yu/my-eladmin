@@ -6,7 +6,10 @@ import com.scott.service.dto.AuthUserDto;
 import com.scott.service.dto.JwtUserDto;
 import com.scott.utils.RedisUtils;
 import com.scott.utils.RsaUtils;
+import com.scott.utils.SecurityUtils;
 import com.wf.captcha.ArithmeticCaptcha;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Api(tags = "系统：系统授权接口")
 public class AuthorizationController {
     /**
      * lombok 使用 @RequiredArgsConstructor 替代 @Autowired
@@ -75,6 +79,12 @@ public class AuthorizationController {
         return ResponseEntity.ok(authInfo);
     }
 
+    @ApiOperation("获取用户信息")
+    @GetMapping(value = "/info")
+    public ResponseEntity<Object> getUserInfo() {
+        return ResponseEntity.ok(SecurityUtils.getCurrentUser());
+    }
+
     @GetMapping(value = "/code")
     public ResponseEntity<Object> getCode() {
         // 获取 算术验证码
@@ -91,4 +101,12 @@ public class AuthorizationController {
         }};
         return ResponseEntity.ok(imgResult);
     }
+
+//    @ApiOperation("退出登录")
+//    @DeleteMapping(value = "/logout")
+//    public ResponseEntity<Object> logout(HttpServletRequest request) {
+//        redisUtils.del();
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
 }
