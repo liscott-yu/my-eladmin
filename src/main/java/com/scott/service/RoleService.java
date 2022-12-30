@@ -1,10 +1,13 @@
 package com.scott.service;
 
+import com.scott.domain.Role;
+import com.scott.service.dto.RoleDto;
 import com.scott.service.dto.UserDto;
 import com.scott.service.dto.small.RoleSmallDto;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * project name  my-eladmin-backend1
@@ -27,4 +30,23 @@ public interface RoleService {
      */
     List<GrantedAuthority> mapToGrantedAuthorities(UserDto user);
 
+    /**
+     * 根据角色查询角色级别
+     * @param roles /
+     * @return /
+     */
+    Integer findByRoles(Set<Role> roles);
+
+    /**
+     * 根据ID查询
+     * @param id /
+     * @return /
+     */
+    RoleDto findById(long id);
+
+    /**
+     * 查询全部数据
+     * @return /
+     */
+    List<RoleDto> queryAll();
 }

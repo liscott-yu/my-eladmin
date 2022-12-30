@@ -4,6 +4,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.scott.exception.BadRequestException;
+import com.scott.utils.enums.DataScopeEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +16,6 @@ import java.util.List;
 /**
  * project name  my-eladmin-backend1
  * filename  SecurityUtils
- *
  * @author liscott
  * @date 2022/12/29 11:16
  * description  TODO
@@ -63,5 +63,18 @@ public class SecurityUtils {
         UserDetails userDetails = getCurrentUser();
         JSONArray array = JSONUtil.parseArray(new JSONObject(userDetails).get("dataScopes"));
         return JSONUtil.toList(array, Long.class);
+    }
+
+    /**
+     * 获取 数据权限 级别
+     * @return 级别
+     */
+    public static String getDataScopeType() {
+        List<Long> dataScope = getCurrentUserDataScope();
+        //dataScopes里面的每个数字代表能看到的部门，如果为空，则代表可以看到所有部门数据
+        if(dataScope.size() != 0){
+            return "";
+        }
+        return DataScopeEnum.ALL.getValue();
     }
 }

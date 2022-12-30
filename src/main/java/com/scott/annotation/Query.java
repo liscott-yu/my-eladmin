@@ -34,7 +34,10 @@ public @interface Query {
         //大于
         GREATER_THAN,
         //包含
-        IN
+        IN,
+        INNER_LIKE,
+        BETWEEN,
+        IS_NULL
     }
     /**
      * 适用于简单连接查询，复杂的请自定义该注解，或者使用sql查询
