@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContextAware;
  * filename  SpringContextHolder
  * @author liscott
  * @date 2022/12/29 11:10
- * description  TODO
+ * description  需要在SpringBoot启动类中配置这个类，然后就会自动调用setApplicationContext方法
  */
 @Slf4j
 public class SpringContextHolder implements ApplicationContextAware {

@@ -17,7 +17,6 @@ import java.util.Set;
  * filename  Menu
  * @author liscott
  * @date 2022/12/29 10:23
- * description  TODO
  */
 @Entity
 @Getter
@@ -32,6 +31,11 @@ public class Menu extends BaseEntity implements Serializable {
     private Long id;
 
     @JsonIgnore
+    /**
+     * //这里的mappedBy表示根据 Role 里面的 menus字段 进行 mapping
+     * //角色拥有菜单，菜单被角色拥有
+     * //这里的roles字段代表拥有该菜单的角色集合
+     */
     @ManyToMany(mappedBy = "menus")
     @ApiModelProperty(value = "菜单角色")
     private Set<Role> roles;

@@ -19,6 +19,7 @@ import java.util.Set;
 public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificationExecutor<Menu> {
     /**
      * 根据 角色ID集合 与 菜单类型 查询 菜单集合
+     * 使用原生SQL查询，nativeQuery = true
      * @param roleIds 角色ID集合
      * @param type 菜单类型
      * @return 菜单集合

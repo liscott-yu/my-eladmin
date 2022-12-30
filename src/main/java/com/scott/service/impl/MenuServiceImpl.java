@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "menu")
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     private final MenuMapper menuMapper;
     private final RoleService roleService;
 
     /**
+     * 获取 当前用户 能看到的 菜单
      * 用户角色改变时需清理缓存
      * @param currentUserId /
      * @return /
@@ -42,25 +42,37 @@ public class MenuServiceImpl implements MenuService {
     @Override
     @Cacheable(key = "'user:' + #p0")
     public List<MenuDto> findByUser(Long currentUserId) {
+        // 获取 当前登录用户 的 所有角色
         List<RoleSmallDto> roles = roleService.findByUsersId(currentUserId);
+        // 把 角色集合 转化为 角色Id集合
         Set<Long> roleIds = roles.stream()
                 .map(RoleSmallDto::getId)
                 .collect(Collectors.toSet());
+        // 根据角色查询能看到的菜单，且菜单类型不能为2，类型为2的菜单是具体权限（或按钮）如：用户新增
         LinkedHashSet<Menu> menus = menuRepository.findByRoleIdsAndTypeNot(roleIds, 2);
         return menus.stream().map(menuMapper::toDto).collect(Collectors.toList());
     }
 
+    /**
+     * 构建 菜单树
+     * @param menuDtos 用户能看到的菜单集合
+     * @return /
+     */
     @Override
     public List<MenuDto> buildTree(List<MenuDto> menuDtos) {
+        // 顶层菜单的集合
         List<MenuDto> trees = new ArrayList<>();
+        //子菜单id的集合，避免重复所以使用Set而不是List
         Set<Long> ids = new HashSet<>();
+        // 遍历 用户 能看到的 每个菜单
         for (MenuDto menuDTO : menuDtos) {
-            // 无父类，添加到 菜单树
+            // 若没有上级菜单，代表一级菜单，添加进 trees 里面
             if( menuDTO.getPid() == null ){
                 trees.add(menuDTO);
             }
+            // 再次遍历用户能看到的每个菜单
             for ( MenuDto it : menuDtos ) {
-                // 有 子菜单
+                // 找出 menuDTO 的 下级菜单
                 if(menuDTO.getId().equals(it.getPid())) {
                     // 添加 子菜单
                     if(menuDTO.getChildren() == null) {
@@ -71,64 +83,43 @@ public class MenuServiceImpl implements MenuService {
                 }
             }
         }
+        // 若 该用户 无 顶级菜单 权限
         if(trees.size() == 0){
+            //在用户能看到的菜单集合里面筛选出所有非子菜单，意思就是一级菜单没有，就显示二级菜单，以此类推
             trees = menuDtos.stream().filter( s -> !ids.contains(s.getId()))
                     .collect(Collectors.toList());
         }
         return trees;
     }
 
+    /**
+     * 完成从menuDTO到menuVO的转化
+     * @param menuDtos 已是 菜单树
+     * @return
+     */
     @Override
     public List<MenuVo> buildMenus(List<MenuDto> menuDtos) {
-        List<MenuVo> list = new LinkedList<>();
+        List<MenuVo> trees = new LinkedList<>();
         menuDtos.forEach(menuDTO -> {
                     if (menuDTO!=null){
-                        List<MenuDto> menuDtoList = menuDTO.getChildren();
                         MenuVo menuVo = new MenuVo();
-                        menuVo.setName(ObjectUtil.isNotEmpty(menuDTO.getComponentName())  ? menuDTO.getComponentName() : menuDTO.getTitle());
+                        menuVo.setName(ObjectUtil.isNotEmpty(menuDTO.getComponentName()) ? menuDTO.getComponentName() : menuDTO.getTitle());
                         // 一级目录需要加斜杠，不然会报警告
                         menuVo.setPath(menuDTO.getPid() == null ? "/" + menuDTO.getPath() :menuDTO.getPath());
                         menuVo.setHidden(menuDTO.getHidden());
-                        // 如果不是外链
-                        if(!menuDTO.getIFrame()){
-                            if(menuDTO.getPid() == null){
-                                menuVo.setComponent(StringUtils.isEmpty(menuDTO.getComponent())?"Layout":menuDTO.getComponent());
-                                // 如果不是一级菜单，并且菜单类型为目录，则代表是多级菜单
-                            }else if(menuDTO.getType() == 0){
-                                menuVo.setComponent(StringUtils.isEmpty(menuDTO.getComponent())?"ParentView":menuDTO.getComponent());
-                            }else if(StringUtils.isNoneBlank(menuDTO.getComponent())){
-                                menuVo.setComponent(menuDTO.getComponent());
-                            }
-                        }
                         menuVo.setMeta(new MenuMetaVo(menuDTO.getTitle(),menuDTO.getIcon(),!menuDTO.getCache()));
+                        //处理子菜单
+                        List<MenuDto> menuDtoList = menuDTO.getChildren();
                         if(CollectionUtil.isNotEmpty(menuDtoList)){
                             menuVo.setAlwaysShow(true);
                             menuVo.setRedirect("noredirect");
                             menuVo.setChildren(buildMenus(menuDtoList));
-                            // 处理是一级菜单并且没有子菜单的情况
-                        } else if(menuDTO.getPid() == null){
-                            MenuVo menuVo1 = new MenuVo();
-                            menuVo1.setMeta(menuVo.getMeta());
-                            // 非外链
-                            if(!menuDTO.getIFrame()){
-                                menuVo1.setPath("index");
-                                menuVo1.setName(menuVo.getName());
-                                menuVo1.setComponent(menuVo.getComponent());
-                            } else {
-                                menuVo1.setPath(menuDTO.getPath());
-                            }
-                            menuVo.setName(null);
-                            menuVo.setMeta(null);
-                            menuVo.setComponent("Layout");
-                            List<MenuVo> list1 = new ArrayList<>();
-                            list1.add(menuVo1);
-                            menuVo.setChildren(list1);
                         }
-                        list.add(menuVo);
+                        trees.add(menuVo);
                     }
                 }
         );
-        return list;
+        return trees;
     }
 
 }

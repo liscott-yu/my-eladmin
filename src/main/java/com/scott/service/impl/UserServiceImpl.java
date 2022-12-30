@@ -4,6 +4,7 @@ import com.scott.domain.User;
 import com.scott.repository.UserRepository;
 import com.scott.service.UserService;
 import com.scott.service.dto.UserDto;
+import com.scott.service.dto.UserQueryCriteria;
 import com.scott.service.mapstruct.UserMapper;
 import com.scott.utils.PageUtil;
 import com.scott.utils.QueryHelp;
@@ -33,8 +34,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Object queryAll(Pageable pageable) {
-        Page<User> pages = userRepository.findAll(QueryHelp::getPredicate, pageable);
+    public Object queryAll(UserQueryCriteria userQueryCriteria, Pageable pageable) {
+        Page<User> pages = userRepository.findAll(
+                (root, query, cb) -> QueryHelp.getPredicate(root, userQueryCriteria, cb), pageable
+                );
         // 以上代码等价于以下代码：
 //        Page<User> page = userRepository.findAll(new Specification<User>() {
 //            @Override

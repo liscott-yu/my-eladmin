@@ -1,6 +1,7 @@
 package com.scott.service;
 
 import com.scott.service.dto.UserDto;
+import com.scott.service.dto.UserQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -19,8 +20,8 @@ public interface UserService {
 
     /**
      * queryAll
-     * @param pageable /
+     * @param UserQueryCriteria, Pageable /
      * @return /
      */
-    Object queryAll(Pageable pageable);
+    Object queryAll(UserQueryCriteria userQueryCriteria, Pageable pageable);
 }
