@@ -2,8 +2,11 @@ package com.scott.rest;
 
 import cn.hutool.core.util.IdUtil;
 import com.scott.config.RsaProperties;
+import com.scott.config.SecurityProperties;
+import com.scott.config.jwt.TokenProvider;
 import com.scott.service.dto.AuthUserDto;
 import com.scott.service.dto.JwtUserDto;
+import com.scott.service.impl.OnlineUserService;
 import com.scott.utils.RedisUtils;
 import com.scott.utils.RsaUtils;
 import com.scott.utils.SecurityUtils;
@@ -11,6 +14,7 @@ import com.wf.captcha.ArithmeticCaptcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -45,6 +49,9 @@ public class AuthorizationController {
      */
     private final RedisUtils redisUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final SecurityProperties properties;
+    private final OnlineUserService onlineUserService;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Validated @RequestBody AuthUserDto authUserDto, HttpServletRequest request) throws Exception {
@@ -102,11 +109,12 @@ public class AuthorizationController {
         return ResponseEntity.ok(imgResult);
     }
 
-//    @ApiOperation("退出登录")
-//    @DeleteMapping(value = "/logout")
-//    public ResponseEntity<Object> logout(HttpServletRequest request) {
-//        redisUtils.del();
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    @ApiOperation("退出登录")
+    @DeleteMapping(value = "/logout")
+    public ResponseEntity<Object> logout(HttpServletRequest request) {
+        onlineUserService.logout(tokenProvider.getToken(request));
+        redisUtils.del();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }
