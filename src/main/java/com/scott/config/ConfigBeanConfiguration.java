@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 配置文件转换Pojo类的 统一配置 类
+ * @author liscott
+ * @date
  */
 @Configuration
 public class ConfigBeanConfiguration {

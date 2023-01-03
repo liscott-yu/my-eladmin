@@ -79,7 +79,7 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public RoleDto findById(long id) {
         Role role = roleRepository.findById(id).orElseGet(Role::new);
-        ValidationUtil.idNull(role.getId(), "Role", "id", id);
+        ValidationUtil.isNull(role.getId(), "Role", "id", id);
         return roleMapper.toDto(role);
     }
 

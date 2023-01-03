@@ -14,12 +14,12 @@ public class ValidationUtil {
 
     /**
      *  校验 null
-     * @param obj /
-     * @param entity /
-     * @param parameter /
-     * @param value /
+     * @param obj  校验的对象
+     * @param entity  实体
+     * @param parameter  参数
+     * @param value  值
      */
-    public static void idNull(Object obj, String entity, String parameter, Object value) {
+    public static void isNull(Object obj, String entity, String parameter, Object value) {
         if(ObjectUtil.isNull(obj)) {
             String msg = entity + " not exist " + parameter + " is " + value;
             throw new BadRequestException(msg);

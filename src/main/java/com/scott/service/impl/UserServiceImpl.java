@@ -9,11 +9,13 @@ import com.scott.service.dto.UserQueryCriteria;
 import com.scott.service.mapstruct.UserMapper;
 import com.scott.utils.PageUtil;
 import com.scott.utils.QueryHelp;
+import com.scott.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * project name  my-eladmin-backend1
@@ -63,5 +65,38 @@ public class UserServiceImpl implements UserService {
             throw new EntityExistException(User.class, "phone", resources.getPhone());
         }
         userRepository.save(resources);
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void update(User resources) throws Exception {
+        // 查询用户是否已存在， 若不存在，无法更新
+        User user = userRepository.findById(resources.getId()).orElseGet(User::new);
+        ValidationUtil.isNull(user.getId(), "User", "Id", resources.getId());
+        // 用户 的 Username， Phone， Email 不可重复
+        User byUsername = userRepository.findByUsername(resources.getUsername());
+        User byPhone = userRepository.findByPhone(resources.getPhone());
+        User byEmail = userRepository.findByEmail(resources.getEmail());
+        if(byUsername != null && !user.getId().equals(byUsername.getId())){
+            throw new EntityExistException(user.getClass(), "username", resources.getUsername());
+        }
+        if(byPhone != null && !user.getId().equals(byPhone.getId())) {
+            throw new EntityExistException(user.getClass(), "phone", resources.getPhone());
+        }
+        if(byEmail != null && !user.getId().equals(byEmail.getId())) {
+            throw new EntityExistException(user.getClass(), "email", resources.getEmail());
+        }
+
+        user.setUsername(resources.getUsername());
+        user.setEmail(resources.getEmail());
+        user.setEnabled(resources.getEnabled());
+        user.setRoles(resources.getRoles());
+        user.setDept(resources.getDept());
+        user.setJobs(resources.getJobs());
+        user.setPhone(resources.getPhone());
+        user.setNickName(resources.getNickName());
+        user.setGender(resources.getGender());
+        userRepository.save(user);
     }
 }
