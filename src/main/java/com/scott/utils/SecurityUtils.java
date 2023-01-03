@@ -47,8 +47,8 @@ public class SecurityUtils {
     }
 
     /**
-     * 获取系统用户ID
-     * @return 系统用户ID
+     * 获取系统用户ID Long
+     * @return 系统用户ID Long
      */
     public static Long getCurrentUserId() {
         UserDetails userDetails = getCurrentUser();

@@ -18,8 +18,8 @@ import java.util.Set;
 public interface RoleService {
     /**
      * 根据 用户ID 查询 小角色列表
-     * @param id 用户ID
-     * @return /
+     * @param id 用户ID Long
+     * @return List<RoleSmallDto>
      */
     List<RoleSmallDto> findByUsersId(Long id);
 

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Set;
+
 /**
  * project name  my-eladmin-backend1
  * filename  UserRepository
@@ -36,4 +38,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      * @return User 用户
      */
     User findByPhone(String phone);
+
+    /**
+     * 根据Id删除
+     * @param ids Set<Long>
+     */
+    void deleteAllByIdIn(Set<Long> ids);
 }

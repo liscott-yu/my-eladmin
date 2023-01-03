@@ -6,6 +6,8 @@ import com.scott.service.dto.UserQueryCriteria;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 /**
  * project name  my-eladmin-backend1
  * filename  UserService
@@ -14,6 +16,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public interface UserService {
+
+    /**
+     * 根据ID 查询 UserDto
+     * @param id String
+     * @return UserDto
+     */
+    UserDto findById(long id);
+
     /**
      * 根据用户名查询 UserDto
      * @param username  username
@@ -39,4 +49,10 @@ public interface UserService {
      * @throws Exception /
      */
     void update(User resources) throws Exception;
+
+    /**
+     * 删除用户
+     * @param ids Set<Long>
+     */
+    void delete(Set<Long> ids);
 }

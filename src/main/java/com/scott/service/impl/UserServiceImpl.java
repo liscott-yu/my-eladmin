@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Set;
+
 /**
  * project name  my-eladmin-backend1
  * filename  UserServiceImpl
@@ -32,6 +34,14 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public UserDto findById(long id) {
+        User user = userRepository.findById(id).orElseGet(User::new);
+        ValidationUtil.isNull(user.getId(), "User", "id", id);
+        return userMapper.toDto(user);
+    }
+
+    @Override
     public UserDto findByName(String username) {
         User user = userRepository.findByUsername(username);
         return userMapper.toDto(user);
@@ -40,8 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object queryAll(UserQueryCriteria userQueryCriteria, Pageable pageable) {
         Page<User> pages = userRepository.findAll(
-                (root, query, cb) -> QueryHelp.getPredicate(root, userQueryCriteria, cb), pageable
-                );
+                (root, query, cb) -> QueryHelp.getPredicate(root, userQueryCriteria, cb), pageable );
         // 以上代码等价于以下代码：
 //        Page<User> page = userRepository.findAll(new Specification<User>() {
 //            @Override
@@ -98,5 +107,11 @@ public class UserServiceImpl implements UserService {
         user.setNickName(resources.getNickName());
         user.setGender(resources.getGender());
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Set<Long> ids) {
+        userRepository.deleteAllByIdIn(ids);
     }
 }

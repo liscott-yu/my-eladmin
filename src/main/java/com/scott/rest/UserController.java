@@ -21,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 /**
  * project name  my-eladmin-backend1
@@ -62,6 +63,27 @@ public class UserController {
         checkLevel(resources);
         userService.update(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation("删除用户")
+    @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('user:del', 'admin')")
+    public ResponseEntity<Object> deleteUser(@RequestBody Set<Long> ids) {
+        // 删除前需要确认权限：当前用户权限 大于 要删除的用户权限
+        for (Long id: ids ) {
+            // Long -> RoleSamllDto -> stream -> Level -> List<Integer> -> min
+            Integer currentLevel = Collections.min(
+                    roleService.findByUsersId(SecurityUtils.getCurrentUserId())
+                            .stream().map(RoleSmallDto :: getLevel).collect(Collectors.toList()));
+            Integer deleteLevel = Collections.min(
+                    roleService.findByUsersId(id)
+                            .stream().map(RoleSmallDto::getLevel).collect(Collectors.toList()));
+            if(currentLevel > deleteLevel){
+                throw new BadRequestException("角色权限不足，不能删除： " + userService.findById(id).getUsername());
+            }
+        }
+        userService.delete(ids);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     /**
